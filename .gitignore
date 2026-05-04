@@ -1,0 +1,16 @@
+node_modules/
+dist/
+*.log
+.DS_Store
+client/dist/
+
+# Environment & local secrets (any path in the repo)
+.env
+.env.*
+*.env
+.envrc
+.direnv/
+
+# Keep example templates committed (override ignores above)
+!.env.example
+!**/.env.example

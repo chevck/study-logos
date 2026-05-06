@@ -49,6 +49,33 @@ function getOrCreateNotebookId() {
   }
 }
 
+/** One shared GET per page load (avoids duplicate calls from React Strict Mode remount). */
+let notebookInitialLoadPromise = null;
+
+function loadNotebookOnce() {
+  if (!notebookInitialLoadPromise) {
+    notebookInitialLoadPromise = (async () => {
+      const id = getOrCreateNotebookId();
+      try {
+        const data = await fetchNotebook(id);
+        let entries = Array.isArray(data.entries) ? data.entries : [];
+        if (entries.length === 0) {
+          const legacy = loadLegacyNotebook();
+          if (legacy.length > 0) {
+            entries = legacy;
+            localStorage.removeItem(NOTEBOOK_STORAGE_KEY);
+          }
+        }
+        return { entries, networkError: false };
+      } catch {
+        const legacy = loadLegacyNotebook();
+        return { entries: legacy, networkError: true };
+      }
+    })();
+  }
+  return notebookInitialLoadPromise;
+}
+
 function Logo({ brandWord1, brandWord2 }) {
   return (
     <div className='flex items-baseline gap-1 font-extrabold tracking-tight text-ep-ink'>
@@ -139,36 +166,19 @@ export default function App() {
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
-      try {
-        const id = getOrCreateNotebookId();
-        const data = await fetchNotebook(id);
-        let entries = Array.isArray(data.entries) ? data.entries : [];
-        if (entries.length === 0) {
-          const legacy = loadLegacyNotebook();
-          if (legacy.length > 0) {
-            entries = legacy;
-            localStorage.removeItem(NOTEBOOK_STORAGE_KEY);
-          }
-        }
-        if (!cancelled) {
-          setNotebook(entries);
-          setNotebookReady(true);
-        }
-      } catch {
-        if (!cancelled) {
-          const legacy = loadLegacyNotebook();
-          setNotebook(legacy);
-          setNotebookReady(true);
-          const msg = appCopy(studyLanguageRef.current);
-          setToast(
-            legacy.length > 0
-              ? msg.toastNotebookOffline
-              : msg.toastNotebookFail,
-          );
-        }
+    loadNotebookOnce().then(({ entries, networkError }) => {
+      if (cancelled) return;
+      setNotebook(entries);
+      setNotebookReady(true);
+      if (networkError) {
+        const msg = appCopy(studyLanguageRef.current);
+        setToast(
+          entries.length > 0
+            ? msg.toastNotebookOffline
+            : msg.toastNotebookFail,
+        );
       }
-    })();
+    });
     return () => {
       cancelled = true;
     };
@@ -282,21 +292,12 @@ export default function App() {
     setBreakdown(null);
     if (!displayReference) return;
     try {
-      const data = await loadVerse(displayReference, nextTrans, {
+      await loadVerse(displayReference, nextTrans, {
         bibleApiLanguage: studyLanguageToBibleApiLanguage(code),
         softFail: true,
       });
-      if (activeWord && data.text) {
-        await loadBreakdown(
-          activeWord,
-          data.reference || displayReference,
-          data.text,
-          nextTrans,
-          code,
-        );
-      }
     } catch {
-      /* loadVerse / loadBreakdown set error state */
+      /* loadVerse sets error state */
     }
   };
 
@@ -385,17 +386,9 @@ export default function App() {
     setTranslation(code);
     if (!displayReference) return;
     try {
-      const data = await loadVerse(displayReference, code, { softFail: true });
-      if (activeWord && data.text) {
-        await loadBreakdown(
-          activeWord,
-          data.reference || displayReference,
-          data.text,
-          code,
-        );
-      }
+      await loadVerse(displayReference, code, { softFail: true });
     } catch {
-      /* loaders set error */
+      /* loadVerse sets error */
     }
   };
 
@@ -550,7 +543,7 @@ export default function App() {
               value={referenceInput}
               onChange={(e) => setReferenceInput(e.target.value)}
               placeholder={t.placeholderRef}
-              className='min-h-[52px] w-full flex-1 rounded-xl border border-gray-300 bg-white px-4 py-3 text-[15px] font-semibold text-ep-ink shadow-sm outline-none placeholder:font-medium placeholder:text-gray-400 focus:border-ep-blue focus:ring-4 focus:ring-blue-100'
+              className='min-h-[52px] w-full flex-1 rounded-xl border border-gray-300 bg-white px-4 py-3 text-base font-semibold text-ep-ink shadow-sm outline-none placeholder:font-medium placeholder:text-gray-400 focus:border-ep-blue focus:ring-4 focus:ring-blue-100'
             />
             <button
               type='submit'

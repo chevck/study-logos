@@ -76,7 +76,7 @@ export default function WordBreakdownPanel({
         </div>
       )}
 
-      <div className="max-h-[min(85vh,720px)] overflow-y-auto md:max-h-none md:overflow-visible">
+      <div className="overflow-visible">
         {empty && (
           <div className="flex min-h-[200px] flex-col items-center justify-center gap-3 px-4 py-10 text-center sm:min-h-[240px] sm:px-6 sm:py-14">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-ep-line bg-slate-50 text-xl text-ep-blue">

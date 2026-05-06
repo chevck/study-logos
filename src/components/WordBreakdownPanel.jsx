@@ -9,7 +9,7 @@ function styleForCaseStudy(styleKey, studyLanguage) {
 
 /** Outer flight-style card */
 const shell =
-  'overflow-hidden rounded-2xl border border-ep-line bg-white font-sans shadow-card-lg';
+  'overflow-hidden rounded-[1.75rem] border border-ep-line/90 bg-white font-sans shadow-card-lg backdrop-blur-sm';
 
 export default function WordBreakdownPanel({
   breakdown,
@@ -32,7 +32,7 @@ export default function WordBreakdownPanel({
           <button
             type="button"
             onClick={onBack}
-            className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-xs font-bold uppercase tracking-wide text-gray-700 shadow-sm transition hover:bg-gray-50"
+            className='rounded-full border border-ep-line/90 bg-white px-4 py-2 text-xs font-bold uppercase tracking-wide text-gray-700 shadow-inner transition hover:bg-ep-accent-soft hover:text-ep-ink'
           >
             {copy.breakdownBack}
           </button>
@@ -56,7 +56,7 @@ export default function WordBreakdownPanel({
       {!loading && breakdown && (
         <div className="flex flex-col gap-4 border-b border-ep-line px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:gap-4 sm:px-6 sm:py-5">
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-bold uppercase tracking-wide text-gray-500">{copy.selectedWord}</p>
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-ep-muted">{copy.selectedWord}</p>
             <p className="mt-1 break-words font-sans text-2xl font-extrabold tracking-tight text-ep-ink sm:text-3xl">
               {breakdown.word}
             </p>
@@ -67,8 +67,8 @@ export default function WordBreakdownPanel({
             onClick={onSave}
             className={
               savedWords
-                ? 'w-full shrink-0 rounded-xl bg-gray-800 px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-gray-900 sm:w-auto'
-                : 'w-full shrink-0 rounded-xl bg-ep-blue px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-ep-blue-hover sm:w-auto'
+                ? 'w-full shrink-0 rounded-full bg-[#3D3D3D] px-6 py-3 text-sm font-bold text-white shadow-inner transition hover:bg-[#2A2A2A] sm:w-auto'
+                : 'w-full shrink-0 rounded-full bg-ep-accent px-6 py-3 text-sm font-bold text-ep-accent-foreground shadow-soft transition hover:bg-ep-accent-hover sm:w-auto'
             }
           >
             {savedWords ? copy.savedNotebook : copy.saveNotebook}
@@ -79,7 +79,7 @@ export default function WordBreakdownPanel({
       <div className="overflow-visible">
         {empty && (
           <div className="flex min-h-[200px] flex-col items-center justify-center gap-3 px-4 py-10 text-center sm:min-h-[240px] sm:px-6 sm:py-14">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-ep-line bg-slate-50 text-xl text-ep-blue">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-ep-line/80 bg-ep-accent-soft text-xl text-ep-accent shadow-inner">
               ✦
             </div>
             <p className="max-w-sm text-sm font-semibold leading-relaxed text-gray-600">
@@ -95,7 +95,7 @@ export default function WordBreakdownPanel({
         )}
 
         {!loading && breakdown && (
-          <div className="border-t border-ep-line bg-slate-100/90 px-4 py-5 sm:px-6 sm:py-6">
+          <div className="border-t border-ep-line/80 bg-ep-surface-muted/95 px-4 py-6 sm:px-6 sm:py-8">
             <div className="mx-auto flex max-w-3xl flex-col gap-5">
               <BreakdownSegment title={seg.originalLanguage}>
                 <p className="text-xl font-bold text-ep-ink">{breakdown.original}</p>
@@ -134,7 +134,7 @@ export default function WordBreakdownPanel({
                       key={ref}
                       type="button"
                       onClick={() => onCrossRefClick(ref)}
-                      className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-left text-xs font-bold text-ep-blue shadow-sm transition hover:border-ep-blue hover:bg-blue-50"
+                      className="rounded-full border border-ep-line bg-white px-4 py-2 text-left text-xs font-bold text-ep-ink shadow-inner transition hover:border-ep-accent hover:bg-ep-accent-soft"
                     >
                       {ref}
                     </button>
@@ -161,7 +161,7 @@ export default function WordBreakdownPanel({
 function BreakdownSegment({ title, children, className = '' }) {
   return (
     <div
-      className={`rounded-xl border border-gray-200/80 bg-white p-4 shadow-sm sm:p-5 ${className}`}
+      className={`rounded-2xl border border-ep-line/80 bg-white p-4 shadow-card sm:p-5 ${className}`}
     >
       <p className="mb-3 text-[11px] font-extrabold uppercase tracking-[0.18em] text-gray-500">{title}</p>
       {children}

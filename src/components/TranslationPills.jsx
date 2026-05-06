@@ -9,10 +9,10 @@ export default function TranslationPills({ value, onChange, codes }) {
             type="button"
             onClick={() => onChange(code)}
             className={[
-              'rounded-xl border px-4 py-2.5 font-sans text-xs font-bold uppercase tracking-wide transition-colors',
+              'rounded-full border px-4 py-2.5 font-sans text-xs font-bold uppercase tracking-wide transition-colors',
               active
-                ? 'border-ep-blue bg-blue-50 text-ep-blue shadow-sm ring-1 ring-ep-blue/20'
-                : 'border-gray-300 bg-white text-gray-700 shadow-sm hover:border-gray-400 hover:bg-gray-50',
+                ? 'border-ep-accent bg-ep-accent-soft text-ep-accent-foreground shadow-inner ring-[3px] ring-ep-accent/15'
+                : 'border-ep-line/90 bg-white text-gray-700 shadow-inner hover:border-gray-400 hover:bg-white',
             ].join(' ')}
           >
             {code}

@@ -3,7 +3,7 @@ export default function ScriptureViewer({ verseText, activeWord, onWordClick, ar
 
   return (
     <div
-      className="rounded-xl border border-gray-200 bg-slate-50 p-3 font-sans text-[1rem] font-semibold leading-[1.85] text-ep-ink sm:p-5 sm:text-[1.1rem] sm:leading-[1.95] md:text-[1.15rem]"
+      className="rounded-2xl border border-ep-line/85 bg-white/90 p-3 font-sans text-[1rem] font-semibold leading-[1.85] text-ep-ink shadow-inner backdrop-blur-sm sm:p-5 sm:text-[1.1rem] sm:leading-[1.95] md:text-[1.15rem]"
       role="region"
       aria-label={ariaLabel ?? 'Scripture passage'}
     >
@@ -16,9 +16,9 @@ export default function ScriptureViewer({ verseText, activeWord, onWordClick, ar
               onClick={() => onWordClick(word)}
               className={[
                 'inline touch-manipulation rounded-lg border px-1 py-0.5 align-baseline transition-colors duration-150',
-                'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ep-blue',
+                'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ep-accent',
                 isActive
-                  ? 'border-ep-blue bg-blue-100 text-ep-ink shadow-sm'
+                  ? 'border-ep-accent bg-ep-accent-soft text-ep-ink shadow-sm ring-2 ring-ep-accent/25'
                   : 'border-transparent bg-white text-ep-ink hover:border-gray-300 hover:bg-white',
               ].join(' ')}
             >

@@ -5,7 +5,7 @@ export default function SkeletonLoader({ ariaLabel = 'Loading' }) {
 
   return (
     <div
-      className="space-y-5 rounded-xl border border-gray-200 bg-slate-50 p-5"
+      className='space-y-5 rounded-2xl border border-ep-line/85 bg-white/70 p-5 shadow-inner backdrop-blur-sm'
       role="status"
       aria-label={ariaLabel}
     >
@@ -14,7 +14,7 @@ export default function SkeletonLoader({ ariaLabel = 'Loading' }) {
         {bar('w-full')}
         {bar('w-4/5')}
       </div>
-      <div className="space-y-2 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+      <div className='space-y-2 rounded-xl border border-ep-line/70 bg-white/90 p-4 shadow-inner'>
         {bar('w-2/5')}
         {bar('w-full')}
         {bar('w-full')}

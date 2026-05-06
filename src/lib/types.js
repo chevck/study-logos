@@ -152,7 +152,7 @@ export function appCopy(lang) {
 /** Pill styles shared; labels localized for empty `caseStudyLabel` fallback. */
 export const CASE_STYLES = {
   story: {
-    pill: 'border-emerald-300 bg-emerald-50 text-emerald-900',
+    pill: 'border-ep-success/35 bg-ep-success-soft text-[#24633C]',
   },
   cinematic: {
     pill: 'border-violet-300 bg-violet-50 text-violet-900',

@@ -1,6 +1,6 @@
-/* Multi-word family must be quoted; Tailwind maps sans → var(--font-study-sans). */
+/* Crextio-inspired soft dashboard: Inter + warm neutrals */
 :root {
-  --font-study-sans: 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-study-sans: 'Inter', system-ui, sans-serif;
 }
 
 @tailwind base;
@@ -21,7 +21,15 @@
   }
 
   body {
-    @apply min-h-screen bg-ep-surface font-sans text-ep-ink antialiased;
+    min-height: 100vh;
+    @apply font-sans text-ep-ink antialiased;
+    background-color: theme('colors.ep.surface');
+    background-image: radial-gradient(
+        ellipse 100% 70% at 92% -8%,
+        rgb(255 234 197 / 0.65),
+        transparent 52%
+      ),
+      linear-gradient(180deg, #f1f0ee 0%, #faf9f8 42%, #f7f6f4 100%);
   }
 
   #root {

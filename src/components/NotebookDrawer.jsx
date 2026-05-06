@@ -14,7 +14,7 @@ export default function NotebookDrawer({ open, entries, onClose, onRemove, study
         onClick={onClose}
       />
       <aside
-        className="absolute right-0 top-0 flex h-[100dvh] max-h-screen w-full max-w-md flex-col border-l border-ep-line bg-white shadow-card-lg sm:max-w-sm"
+        className="absolute right-0 top-0 flex h-[100dvh] max-h-screen w-full max-w-md flex-col rounded-l-[2rem] border-l border-ep-line/80 bg-white/95 shadow-card-lg backdrop-blur-xl sm:max-w-sm"
         role="dialog"
         aria-labelledby="notebook-title"
       >
@@ -25,7 +25,7 @@ export default function NotebookDrawer({ open, entries, onClose, onRemove, study
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-bold text-gray-700 shadow-sm transition hover:bg-gray-50"
+            className="rounded-full border border-ep-line/90 bg-white px-4 py-2 text-sm font-bold text-gray-700 shadow-inner transition hover:bg-ep-accent-soft"
           >
             {t.notebookClose}
           </button>
@@ -40,17 +40,17 @@ export default function NotebookDrawer({ open, entries, onClose, onRemove, study
               {entries.map((e) => (
                 <li
                   key={e.id}
-                  className="rounded-xl border border-ep-line bg-white p-4 shadow-card"
+                  className="rounded-2xl border border-ep-line/90 bg-white p-4 shadow-card"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <p className="font-extrabold text-ep-blue">{e.word}</p>
+                      <p className="font-extrabold text-ep-accent">{e.word}</p>
                       <p className="text-xs font-bold text-gray-600">{e.reference}</p>
                     </div>
                     <button
                       type="button"
                       onClick={() => onRemove(e.id)}
-                      className="shrink-0 rounded-lg border border-gray-300 px-2 py-1 text-xs font-bold text-gray-600 transition hover:bg-gray-50"
+                      className="shrink-0 rounded-full border border-ep-line px-3 py-1.5 text-xs font-bold text-gray-600 shadow-inner transition hover:bg-ep-accent-soft"
                     >
                       {t.notebookRemove}
                     </button>

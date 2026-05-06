@@ -82,7 +82,7 @@ function Logo({ brandWord1, brandWord2 }) {
       <span className='text-xl lowercase sm:text-2xl'>{brandWord1}</span>
       <span className='relative text-xl lowercase sm:text-2xl'>
         <span
-          className='absolute -top-3 left-[0.2rem] flex gap-px text-[5px] leading-none text-ep-blue sm:left-1 sm:text-[6px]'
+          className='absolute -top-3 left-[0.2rem] flex gap-px text-[5px] leading-none text-ep-accent sm:left-1 sm:text-[6px]'
           aria-hidden
         >
           <span>●</span>
@@ -404,81 +404,95 @@ export default function App() {
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const surfaceCard = "rounded-2xl border border-ep-line bg-white shadow-card";
+  const pillNavBtn =
+    "rounded-full px-4 py-2 text-xs font-semibold text-ep-muted transition hover:bg-white hover:text-ep-ink sm:text-sm";
+
+  const surfaceCard =
+    "rounded-[1.75rem] border border-ep-line/90 bg-white/95 shadow-card backdrop-blur-sm";
 
   return (
     <div className='relative min-h-screen overflow-x-hidden font-sans'>
-      <header className='sticky top-0 z-40 bg-white border-b border-ep-line'>
-        <div className='max-w-5xl px-3 py-3 mx-auto sm:px-6 sm:py-4'>
-          <div className='flex items-center justify-between gap-3 md:gap-6'>
+      <header className='sticky top-0 z-40 border-b border-white/40 bg-white/72 shadow-[0_8px_32px_rgb(26_25_23/0.05)] backdrop-blur-xl'>
+        <div className='mx-auto flex max-w-5xl flex-col gap-3 px-3 py-3 sm:px-6 sm:py-4'>
+          <div className='flex items-center gap-3 md:gap-4'>
             <button
               type='button'
               onClick={scrollMainTop}
-              className='min-w-0 text-left shrink'
+              className='min-w-0 shrink text-left'
             >
               <Logo brandWord1={t.brandWord1} brandWord2={t.brandWord2} />
             </button>
-            <nav className='items-center justify-center flex-1 hidden gap-6 text-sm font-semibold text-gray-600 md:flex lg:justify-start lg:gap-8'>
+
+            <nav
+              aria-label='Main navigation'
+              className='mx-auto hidden max-w-xl flex-1 justify-center px-2 md:flex'
+            >
+              <div className='inline-flex items-center gap-0.5 rounded-full border border-ep-line/85 bg-white/95 p-1 shadow-inner'>
+                <button
+                  type='button'
+                  onClick={scrollMainTop}
+                  className={pillNavBtn}
+                >
+                  {t.navStudy}
+                </button>
+                <button
+                  type='button'
+                  onClick={scrollToSearch}
+                  className={pillNavBtn}
+                >
+                  {t.navSearch}
+                </button>
+                <button
+                  type='button'
+                  onClick={() => setDrawerOpen(true)}
+                  className={pillNavBtn}
+                >
+                  {t.navNotebook}
+                </button>
+              </div>
+            </nav>
+
+            <button
+              type='button'
+              onClick={() => setDrawerOpen(true)}
+              className='relative ml-auto shrink-0 rounded-full bg-ep-accent px-5 py-2.5 text-sm font-bold tracking-tight text-ep-accent-foreground shadow-soft transition hover:bg-ep-accent-hover'
+            >
+              {t.ctaGetStarted}
+              {notebook.length > 0 && (
+                <span className='absolute -top-1.5 -right-1.5 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-white px-1 text-[10px] font-extrabold text-ep-accent-foreground shadow-card ring-1 ring-ep-line/70'>
+                  {notebook.length > 9 ? "9+" : notebook.length}
+                </span>
+              )}
+            </button>
+          </div>
+
+          <nav
+            aria-label='Main navigation'
+            className='flex justify-center md:hidden'
+          >
+            <div className='inline-flex w-full max-w-md items-center justify-around gap-0.5 rounded-full border border-ep-line/85 bg-white/95 py-1 pl-1 pr-2 shadow-inner'>
               <button
                 type='button'
                 onClick={scrollMainTop}
-                className='transition hover:text-ep-blue'
+                className={pillNavBtn}
               >
                 {t.navStudy}
               </button>
               <button
                 type='button'
                 onClick={scrollToSearch}
-                className='transition hover:text-ep-blue'
+                className={pillNavBtn}
               >
                 {t.navSearch}
               </button>
               <button
                 type='button'
                 onClick={() => setDrawerOpen(true)}
-                className='transition hover:text-ep-blue'
+                className={pillNavBtn}
               >
                 {t.navNotebook}
               </button>
-            </nav>
-            <button
-              type='button'
-              onClick={() => setDrawerOpen(true)}
-              className='relative shrink-0 rounded-xl bg-ep-blue px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-ep-blue-hover sm:px-5 sm:py-2.5'
-            >
-              {t.ctaGetStarted}
-              {notebook.length > 0 && (
-                <span className='absolute -right-1.5 -top-1.5 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-white px-1 text-[10px] font-extrabold text-ep-blue ring-1 ring-ep-line'>
-                  {notebook.length > 9 ? "9+" : notebook.length}
-                </span>
-              )}
-            </button>
-          </div>
-          <nav
-            className='flex items-center justify-around gap-2 pt-3 mt-3 text-xs font-semibold text-gray-600 border-t border-ep-line sm:text-sm md:hidden'
-            aria-label='Main'
-          >
-            <button
-              type='button'
-              onClick={scrollMainTop}
-              className='transition hover:text-ep-blue'
-            >
-              {t.navStudy}
-            </button>
-            <button
-              type='button'
-              onClick={scrollToSearch}
-              className='transition hover:text-ep-blue'
-            >
-              {t.navSearch}
-            </button>
-            <button
-              type='button'
-              onClick={() => setDrawerOpen(true)}
-              className='transition hover:text-ep-blue'
-            >
-              {t.navNotebook}
-            </button>
+            </div>
           </nav>
         </div>
       </header>
@@ -509,7 +523,7 @@ export default function App() {
           className={`mb-6 p-4 sm:mb-8 sm:p-5 md:p-6 ${surfaceCard}`}
         >
           <div className='flex flex-col gap-4 pb-5 mb-5 border-b border-ep-line sm:flex-row sm:items-center sm:justify-between'>
-            <span className='text-xs font-bold tracking-wide text-gray-500 uppercase'>
+            <span className='text-[11px] font-extrabold tracking-[0.14em] text-ep-muted uppercase'>
               {t.labelStudyLanguage}
             </span>
             <StudyLanguagePills
@@ -520,7 +534,7 @@ export default function App() {
           </div>
 
           <div className='flex flex-col gap-4 pb-5 mb-5 border-b border-ep-line sm:flex-row sm:items-center sm:justify-between'>
-            <span className='text-xs font-bold tracking-wide text-gray-500 uppercase'>
+            <span className='text-[11px] font-extrabold tracking-[0.14em] text-ep-muted uppercase'>
               {t.labelBibleEdition}
             </span>
             <TranslationPills
@@ -543,12 +557,12 @@ export default function App() {
               value={referenceInput}
               onChange={(e) => setReferenceInput(e.target.value)}
               placeholder={t.placeholderRef}
-              className='min-h-[52px] w-full flex-1 rounded-xl border border-gray-300 bg-white px-4 py-3 text-base font-semibold text-ep-ink shadow-sm outline-none placeholder:font-medium placeholder:text-gray-400 focus:border-ep-blue focus:ring-4 focus:ring-blue-100'
+              className='min-h-[52px] w-full flex-1 rounded-full border border-ep-line bg-white px-5 py-3 text-base font-semibold text-ep-ink shadow-inner outline-none ring-0 transition placeholder:font-medium placeholder:text-ep-muted focus:border-ep-accent focus:ring-[3px] focus:ring-ep-accent-soft'
             />
             <button
               type='submit'
               disabled={verseLoading}
-              className='flex min-h-[52px] w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-ep-blue px-6 font-bold text-white shadow-sm transition hover:bg-ep-blue-hover disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:px-8 md:px-10'
+              className='flex min-h-[52px] w-full shrink-0 items-center justify-center gap-2 rounded-full bg-ep-accent px-6 font-bold text-ep-accent-foreground shadow-soft transition hover:bg-ep-accent-hover disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:px-8 md:px-10'
             >
               <IconSearch className='w-5 h-5' />
               {verseLoading ? t.searching : t.search}
@@ -558,7 +572,7 @@ export default function App() {
 
         {error && (
           <div
-            className='px-4 py-3 mb-6 text-sm font-semibold text-red-900 border border-red-200 shadow-sm rounded-2xl bg-red-50 sm:mb-8 sm:px-5 sm:py-4'
+            className='mb-6 rounded-[1.5rem] border border-red-200/80 bg-red-50/90 px-4 py-3 text-sm font-semibold text-red-900 shadow-inner sm:mb-8 sm:px-5 sm:py-4'
             role='alert'
           >
             {error}
@@ -573,7 +587,7 @@ export default function App() {
                 <span className='text-gray-700'>
                   <span className='break-words'>{displayReference}</span>{" "}
                   <span className='whitespace-nowrap'>
-                    → <span className='text-ep-blue'>{translation}</span>
+                    → <span className='font-bold text-ep-accent'>{translation}</span>
                   </span>
                 </span>
               </>
@@ -586,7 +600,7 @@ export default function App() {
         <div className='w-full'>
           <div className={`mb-8 w-full p-4 sm:p-5 md:p-6 ${surfaceCard}`}>
             <div className='pb-4 mb-5 border-b border-ep-line'>
-              <p className='text-xs font-bold tracking-wide text-gray-500 uppercase'>
+              <p className='text-[11px] font-extrabold tracking-[0.14em] text-ep-muted uppercase'>
                 {t.readingLabel}
               </p>
               {displayReference ? (

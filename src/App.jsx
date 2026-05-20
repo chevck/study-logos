@@ -5,6 +5,7 @@ import NotebookDrawer from "./components/NotebookDrawer.jsx";
 import StudyLanguagePills from "./components/StudyLanguagePills.jsx";
 import TranslationPills from "./components/TranslationPills.jsx";
 import Toast from "./components/Toast.jsx";
+import ReferencePicker from "./components/ReferencePicker.jsx";
 import {
   fetchBreakdown,
   fetchNotebook,
@@ -18,6 +19,13 @@ import {
   studyLanguageToBibleApiLanguage,
   TRANSLATIONS_BY_STUDY_LANGUAGE,
 } from "./lib/types.js";
+import {
+  applyReferenceToPickerState,
+  formatReference,
+  getBookBySlug,
+  getVerseCount,
+  parseReferenceString,
+} from "./lib/bibleBooks.js";
 
 function notebookEntryId(reference, word, original) {
   return `${reference}|${word}|${original}`;
@@ -116,9 +124,10 @@ function IconSearch(props) {
 
 export default function App() {
   const mainRef = useRef(null);
-  const searchRef = useRef(null);
 
-  const [referenceInput, setReferenceInput] = useState("Romans 5:13");
+  const [pickerBookSlug, setPickerBookSlug] = useState("romans");
+  const [pickerChapter, setPickerChapter] = useState(5);
+  const [pickerVerse, setPickerVerse] = useState(13);
   const [displayReference, setDisplayReference] = useState("");
   const [verseText, setVerseText] = useState("");
   const [studyLanguage, setStudyLanguage] = useState("eng");
@@ -262,10 +271,41 @@ export default function App() {
     [studyLanguage],
   );
 
+  const syncPickerFromRefString = useCallback((refString) => {
+    const parsed = parseReferenceString(refString);
+    if (!parsed) return;
+    const a = applyReferenceToPickerState(parsed);
+    setPickerBookSlug(a.slug);
+    setPickerChapter(a.chapter);
+    setPickerVerse(a.verse);
+  }, []);
+
+  const handlePickerBookChange = useCallback((slug) => {
+    setPickerBookSlug(slug);
+    const b = getBookBySlug(slug);
+    setPickerChapter((c) => Math.min(Math.max(1, c), b.chapters));
+  }, []);
+
+  useEffect(() => {
+    setPickerVerse((v) => {
+      const max = getVerseCount(pickerBookSlug, pickerChapter);
+      return v > max ? max : Math.max(1, v);
+    });
+  }, [pickerBookSlug, pickerChapter]);
+
+  const pickerLabels = useMemo(
+    () => ({
+      srPassageGroup: t.srPassageGroup,
+      labelBook: t.labelBook,
+      labelChapter: t.labelChapter,
+      labelVerse: t.labelVerse,
+    }),
+    [t],
+  );
+
   const handleSearch = async (e) => {
     e.preventDefault();
-    const ref = referenceInput.trim();
-    if (!ref) return;
+    const ref = formatReference(pickerBookSlug, pickerChapter, pickerVerse);
     setNavStack([]);
     setActiveWord(null);
     setBreakdown(null);
@@ -312,7 +352,7 @@ export default function App() {
       ...s,
       { reference: displayReference, word: activeWord },
     ]);
-    setReferenceInput(ref);
+    syncPickerFromRefString(ref);
 
     try {
       const data = await loadVerse(ref, translation);
@@ -320,7 +360,7 @@ export default function App() {
       await loadBreakdown(activeWord, data.reference || ref, text, translation);
     } catch {
       setNavStack((s) => s.slice(0, -1));
-      setReferenceInput(fromRef);
+      syncPickerFromRefString(fromRef);
       try {
         const data = await loadVerse(fromRef, translation);
         await loadBreakdown(
@@ -339,7 +379,7 @@ export default function App() {
     if (navStack.length === 0) return;
     const prev = navStack[navStack.length - 1];
     setNavStack((s) => s.slice(0, -1));
-    setReferenceInput(prev.reference);
+    syncPickerFromRefString(prev.reference);
     setActiveWord(prev.word);
 
     try {
@@ -398,7 +438,7 @@ export default function App() {
   };
 
   const scrollToSearch = () => {
-    searchRef.current?.focus();
+    document.getElementById("ref-book")?.focus();
     document
       .getElementById("search-panel")
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -546,25 +586,26 @@ export default function App() {
 
           <form
             onSubmit={handleSearch}
-            className='flex flex-col gap-3 sm:flex-row sm:items-stretch'
+            className='flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-3'
           >
-            <label className='sr-only' htmlFor='ref-input'>
-              {t.srRefLabel}
-            </label>
-            <input
-              ref={searchRef}
-              id='ref-input'
-              value={referenceInput}
-              onChange={(e) => setReferenceInput(e.target.value)}
-              placeholder={t.placeholderRef}
-              className='min-h-[52px] w-full flex-1 rounded-full border border-ep-line bg-white px-5 py-3 text-base font-semibold text-ep-ink shadow-inner outline-none ring-0 transition placeholder:font-medium placeholder:text-ep-muted focus:border-ep-accent focus:ring-[3px] focus:ring-ep-accent-soft'
-            />
+            <div className='min-w-0 flex-1'>
+              <ReferencePicker
+                bookSlug={pickerBookSlug}
+                chapter={pickerChapter}
+                verse={pickerVerse}
+                onBookSlugChange={handlePickerBookChange}
+                onChapterChange={setPickerChapter}
+                onVerseChange={setPickerVerse}
+                disabled={verseLoading}
+                labels={pickerLabels}
+              />
+            </div>
             <button
               type='submit'
               disabled={verseLoading}
-              className='flex min-h-[52px] w-full shrink-0 items-center justify-center gap-2 rounded-full bg-ep-accent px-6 font-bold text-ep-accent-foreground shadow-soft transition hover:bg-ep-accent-hover disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:px-8 md:px-10'
+              className='inline-flex h-[3.25rem] w-full shrink-0 items-center justify-center gap-2.5 rounded-2xl bg-ep-accent px-6 text-sm font-bold tracking-tight text-ep-accent-foreground shadow-soft transition hover:bg-ep-accent-hover focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ep-accent/35 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100 sm:w-auto sm:min-w-[9.5rem] sm:px-8'
             >
-              <IconSearch className='w-5 h-5' />
+              <IconSearch className='h-[1.125rem] w-[1.125rem] shrink-0 stroke-[2.25]' />
               {verseLoading ? t.searching : t.search}
             </button>
           </form>

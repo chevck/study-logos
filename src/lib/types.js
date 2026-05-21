@@ -70,6 +70,8 @@ export const APP_COPY = {
       crossRefs: 'Cross-references',
       commentary: 'Commentary',
     },
+    crossRefLoading: 'Loading cross-reference…',
+    crossRefNoMatch: 'The selected word does not appear in this verse.',
     breakdownBack: '← Back',
     breakdownEmptyHint:
       'Tap any word in the passage to see original language, definition, case study, and cross-references.',
@@ -126,6 +128,8 @@ export const APP_COPY = {
       crossRefs: 'Àwọn àṣẹ ìtọ́kasí',
       commentary: 'Ìsọfúnni',
     },
+    crossRefLoading: 'À ń gbé àṣẹ ìtọ́kasí wọlé…',
+    crossRefNoMatch: 'A kò rí ọ̀rọ̀ kan tí ó bá èdè àtẹ̀yìnwá náà mu.',
     breakdownBack: '← Padà',
     breakdownEmptyHint:
       'Tẹ ọ̀rọ̀ kan nínú ẹ̀kúnrín náà láti rí èdè àtẹ̀yìnwá, àṣẹ àyẹ̀wò, ìgbéyẹ̀wò, àti àwọn àṣẹ ìtọ́kasí.',

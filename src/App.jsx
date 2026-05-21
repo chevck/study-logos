@@ -26,6 +26,7 @@ import {
   getVerseCount,
   parseReferenceString,
 } from "./lib/bibleBooks.js";
+import { findTokenInVerse } from "./lib/matchTransliteration.js";
 
 function notebookEntryId(reference, word, original) {
   return `${reference}|${word}|${original}`;
@@ -154,7 +155,8 @@ export default function App() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [error, setError] = useState("");
 
-  const [navStack, setNavStack] = useState([]);
+  const [crossRefPreview, setCrossRefPreview] = useState(null);
+  const crossRefReqRef = useRef(0);
 
   useEffect(() => {
     document.documentElement.lang = studyLanguage === "yor" ? "yo" : "en";
@@ -204,11 +206,6 @@ export default function App() {
     }, 400);
     return () => clearTimeout(handle);
   }, [notebook, notebookReady, studyLanguage]);
-
-  const breadcrumbs = useMemo(() => {
-    if (navStack.length === 0) return [];
-    return [...navStack.map((n) => n.reference), displayReference];
-  }, [navStack, displayReference]);
 
   const currentSaved = useMemo(() => {
     if (!breakdown?.original) return false;
@@ -306,9 +303,9 @@ export default function App() {
   const handleSearch = async (e) => {
     e.preventDefault();
     const ref = formatReference(pickerBookSlug, pickerChapter, pickerVerse);
-    setNavStack([]);
     setActiveWord(null);
     setBreakdown(null);
+    setCrossRefPreview(null);
     try {
       await loadVerse(ref, translation);
     } catch {
@@ -319,6 +316,7 @@ export default function App() {
   const handleWordClick = async (word) => {
     if (!verseText || !displayReference) return;
     setActiveWord(word);
+    setCrossRefPreview(null);
     await loadBreakdown(word, displayReference, verseText, translation);
   };
 
@@ -330,6 +328,7 @@ export default function App() {
     setStudyLanguage(code);
     setTranslation(nextTrans);
     setBreakdown(null);
+    setCrossRefPreview(null);
     if (!displayReference) return;
     try {
       await loadVerse(displayReference, nextTrans, {
@@ -343,55 +342,40 @@ export default function App() {
 
   const handleCrossRefClick = async (refString) => {
     const ref = refString.trim();
-    if (!ref || !activeWord || !displayReference) return;
+    if (!ref || !breakdown?.word) return;
 
-    const wordAtNav = activeWord;
-    const fromRef = displayReference;
-
-    setNavStack((s) => [
-      ...s,
-      { reference: displayReference, word: activeWord },
-    ]);
-    syncPickerFromRefString(ref);
-
-    try {
-      const data = await loadVerse(ref, translation);
-      const text = data.text;
-      await loadBreakdown(activeWord, data.reference || ref, text, translation);
-    } catch {
-      setNavStack((s) => s.slice(0, -1));
-      syncPickerFromRefString(fromRef);
-      try {
-        const data = await loadVerse(fromRef, translation);
-        await loadBreakdown(
-          wordAtNav,
-          data.reference || fromRef,
-          data.text,
-          translation,
-        );
-      } catch {
-        /* handled */
-      }
-    }
-  };
-
-  const handleBack = async () => {
-    if (navStack.length === 0) return;
-    const prev = navStack[navStack.length - 1];
-    setNavStack((s) => s.slice(0, -1));
-    syncPickerFromRefString(prev.reference);
-    setActiveWord(prev.word);
+    const reqId = ++crossRefReqRef.current;
+    setCrossRefPreview({
+      reference: ref,
+      text: "",
+      highlightWord: null,
+      loading: true,
+    });
 
     try {
-      const data = await loadVerse(prev.reference, translation);
-      await loadBreakdown(
-        prev.word,
-        data.reference || prev.reference,
-        data.text,
-        translation,
-      );
-    } catch {
-      /* handled */
+      const apiLang = studyLanguageToBibleApiLanguage(studyLanguage);
+      const data = await fetchVerse(ref, translation, apiLang);
+      if (reqId !== crossRefReqRef.current) return;
+
+      const resolvedRef = data.reference || ref;
+      const text = data.text || "";
+      const highlightWord = findTokenInVerse(text, breakdown.word);
+
+      setCrossRefPreview({
+        reference: resolvedRef,
+        text,
+        highlightWord,
+        loading: false,
+      });
+    } catch (e) {
+      if (reqId !== crossRefReqRef.current) return;
+      setCrossRefPreview({
+        reference: ref,
+        text: "",
+        highlightWord: null,
+        loading: false,
+        error: e.message || t.errLoadVerse,
+      });
     }
   };
 
@@ -682,8 +666,7 @@ export default function App() {
               onSave={handleSave}
               savedWords={currentSaved}
               onCrossRefClick={handleCrossRefClick}
-              breadcrumbs={breadcrumbs}
-              onBack={navStack.length ? handleBack : undefined}
+              crossRefPreview={crossRefPreview}
               studyLanguage={studyLanguage}
             />
           </div>

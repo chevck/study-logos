@@ -1,4 +1,5 @@
 import SkeletonLoader from './SkeletonLoader.jsx';
+import ScriptureViewer from './ScriptureViewer.jsx';
 import { appCopy, CASE_STYLES, CASE_STUDY_LABELS } from '../lib/types.js';
 
 function styleForCaseStudy(styleKey, studyLanguage) {
@@ -17,8 +18,7 @@ export default function WordBreakdownPanel({
   onSave,
   savedWords,
   onCrossRefClick,
-  breadcrumbs,
-  onBack,
+  crossRefPreview,
   studyLanguage = 'eng',
 }) {
   const empty = !loading && !breakdown;
@@ -27,26 +27,6 @@ export default function WordBreakdownPanel({
 
   return (
     <section className={shell}>
-      {breadcrumbs?.length > 0 && onBack && (
-        <div className="flex flex-wrap items-center gap-2 border-b border-ep-line bg-white px-4 py-3 sm:gap-3 sm:px-6 sm:py-4">
-          <button
-            type="button"
-            onClick={onBack}
-            className='rounded-full border border-ep-line/90 bg-white px-4 py-2 text-xs font-bold uppercase tracking-wide text-gray-700 shadow-inner transition hover:bg-ep-accent-soft hover:text-ep-ink'
-          >
-            {copy.breakdownBack}
-          </button>
-          <nav className="flex flex-wrap items-center gap-1 text-xs font-semibold text-gray-600">
-            {breadcrumbs.map((crumb, i) => (
-              <span key={`${crumb}-${i}`} className="flex items-center gap-1">
-                {i > 0 ? <span className="text-gray-400" aria-hidden>/</span> : null}
-                <span className="font-bold text-ep-ink">{crumb}</span>
-              </span>
-            ))}
-          </nav>
-        </div>
-      )}
-
       {loading && (
         <div className="border-b border-ep-line bg-white px-4 py-3 sm:px-6 sm:py-4">
           <p className="text-sm font-semibold text-gray-600">{copy.breakdownLoading}</p>
@@ -129,17 +109,56 @@ export default function WordBreakdownPanel({
 
               <BreakdownSegment title={seg.crossRefs}>
                 <div className="flex flex-wrap gap-2">
-                  {(breakdown.crossReferences || []).map((ref) => (
-                    <button
-                      key={ref}
-                      type="button"
-                      onClick={() => onCrossRefClick(ref)}
-                      className="rounded-full border border-ep-line bg-white px-4 py-2 text-left text-xs font-bold text-ep-ink shadow-inner transition hover:border-ep-accent hover:bg-ep-accent-soft"
-                    >
-                      {ref}
-                    </button>
-                  ))}
+                  {(breakdown.crossReferences || []).map((ref) => {
+                    const active = crossRefPreview?.reference === ref;
+                    return (
+                      <button
+                        key={ref}
+                        type="button"
+                        onClick={() => onCrossRefClick(ref)}
+                        className={[
+                          'rounded-full border px-4 py-2 text-left text-xs font-bold shadow-inner transition',
+                          active
+                            ? 'border-ep-accent bg-ep-accent-soft text-ep-ink ring-2 ring-ep-accent/20'
+                            : 'border-ep-line bg-white text-ep-ink hover:border-ep-accent hover:bg-ep-accent-soft',
+                        ].join(' ')}
+                      >
+                        {ref}
+                      </button>
+                    );
+                  })}
                 </div>
+
+                {crossRefPreview && (
+                  <div className="mt-4 border-t border-ep-line/70 pt-4">
+                    <p className="mb-2 text-xs font-bold text-gray-600">
+                      {crossRefPreview.reference}
+                    </p>
+                    {crossRefPreview.loading ? (
+                      <p className="text-sm font-semibold text-gray-500">
+                        {copy.crossRefLoading}
+                      </p>
+                    ) : crossRefPreview.error ? (
+                      <p className="text-sm font-semibold text-red-700" role="alert">
+                        {crossRefPreview.error}
+                      </p>
+                    ) : (
+                      <>
+                        <ScriptureViewer
+                          verseText={crossRefPreview.text}
+                          highlightWord={crossRefPreview.highlightWord}
+                          interactive={false}
+                          ariaLabel={`${seg.crossRefs}: ${crossRefPreview.reference}`}
+                        />
+                        {!crossRefPreview.highlightWord && (
+                          <p className="mt-2 text-xs font-semibold text-gray-500">
+                            {copy.crossRefNoMatch}
+                          </p>
+                        )}
+                      </>
+                    )}
+                  </div>
+                )}
               </BreakdownSegment>
 
               <BreakdownSegment title={seg.commentary} className="mb-0">

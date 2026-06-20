@@ -11,7 +11,7 @@ export default function ScriptureViewer({
 
   return (
     <div
-      className="rounded-2xl border border-ep-line/85 bg-white/90 p-3 font-sans text-[1rem] font-semibold leading-[1.85] text-ep-ink shadow-inner backdrop-blur-sm sm:p-5 sm:text-[1.1rem] sm:leading-[1.95] md:text-[1.15rem]"
+      className="ep-inner-panel p-3 font-sans text-[1rem] font-semibold leading-[1.85] text-ep-ink sm:p-5 sm:text-[1.1rem] sm:leading-[1.95] md:text-[1.15rem]"
       role="region"
       aria-label={ariaLabel ?? 'Scripture passage'}
     >
@@ -47,7 +47,7 @@ export default function ScriptureViewer({
                 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ep-accent',
                 isMarked
                   ? 'border-ep-accent bg-ep-accent-soft text-ep-ink shadow-sm ring-2 ring-ep-accent/25'
-                  : 'border-transparent bg-white text-ep-ink hover:border-gray-300 hover:bg-white',
+                  : 'border-transparent bg-ep-surface-panel text-ep-ink hover:border-ep-line hover:bg-ep-surface-muted',
               ].join(' ')}
             >
               {word}

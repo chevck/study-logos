@@ -62,6 +62,7 @@ export const APP_COPY = {
     versePlaceholder: 'Your verse appears here after you load a passage.',
     selectedWord: 'Selected word',
     saveNotebook: 'Save to notebook',
+    saveNotebookSignIn: 'Sign in to save',
     savedNotebook: 'Saved to notebook',
     segments: {
       originalLanguage: 'Original language',
@@ -83,6 +84,9 @@ export const APP_COPY = {
     notebookRemove: 'Remove',
     errLoadVerse: 'Could not load verse',
     errLoadBreakdown: 'Could not load breakdown',
+    errGuestLimit:
+      'Guest preview allows one study request. Sign in to keep studying.',
+    toastSignInToSave: 'Sign in to save words to your notebook.',
     toastNotebookOffline:
       'Using saved notebook offline; will sync when the server is available',
     toastNotebookFail: 'Notebook could not load from server',
@@ -160,16 +164,16 @@ export function appCopy(lang) {
 /** Pill styles shared; labels localized for empty `caseStudyLabel` fallback. */
 export const CASE_STYLES = {
   story: {
-    pill: 'border-ep-success/35 bg-ep-success-soft text-[#24633C]',
+    pill: 'border-ep-success/35 bg-ep-success-soft text-ep-case-story-text',
   },
   cinematic: {
-    pill: 'border-violet-300 bg-violet-50 text-violet-900',
+    pill: 'border-violet-400/40 bg-ep-case-violet-soft text-ep-case-violet-text',
   },
   historical: {
-    pill: 'border-amber-300 bg-amber-50 text-amber-950',
+    pill: 'border-amber-400/40 bg-ep-case-amber-soft text-ep-case-amber-text',
   },
   parable: {
-    pill: 'border-orange-800/30 bg-[#FDF5F0] text-[#6B2E12]',
+    pill: 'border-orange-700/30 bg-ep-case-parable-soft text-ep-case-parable-text',
   },
 };
 
@@ -191,3 +195,7 @@ export const CASE_STUDY_LABELS = {
 /** Legacy: full notebook JSON was stored here; entries now live on the server under NOTEBOOK_ID_KEY. */
 export const NOTEBOOK_STORAGE_KEY = 'study-logos-notebook';
 export const NOTEBOOK_ID_KEY = 'study-logos-notebook-id';
+export const AUTH_TOKEN_KEY = 'study-logos-auth-token';
+export const AUTH_USER_KEY = 'study-logos-auth-user';
+export const GUEST_ID_KEY = 'study-logos-guest-id';
+export const THEME_PREFERENCE_KEY = 'study-logos-theme-preference';

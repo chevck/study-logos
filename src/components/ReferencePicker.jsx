@@ -95,7 +95,7 @@ export default function ReferencePicker({
 
       <div
         className={[
-          'grid grid-cols-[minmax(0,1fr)_4.75rem_4.75rem] overflow-hidden rounded-2xl border border-ep-line/90 bg-white shadow-innerSoft transition',
+          'grid grid-cols-[minmax(0,1fr)_4.75rem_4.75rem] overflow-hidden rounded-2xl border border-ep-line/90 bg-ep-surface-panel shadow-innerSoft transition',
           'focus-within:border-ep-accent focus-within:ring-[3px] focus-within:ring-ep-accent/15',
           'sm:grid-cols-[minmax(0,1fr)_5rem_5rem]',
           disabled ? 'opacity-60' : '',

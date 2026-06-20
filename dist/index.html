@@ -13,10 +13,43 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <script type="module" crossorigin src="/assets/index-BAj3eM8N.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-CUWapMvA.css">
+    <script type="module" crossorigin src="/assets/index-D2vq74XT.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CVh4Xy5d.css">
   </head>
   <body class="min-h-screen font-sans antialiased text-ep-ink">
+    <script>
+      (function () {
+        var USER_KEY = "study-logos-auth-user";
+        var PREF_KEY = "study-logos-theme-preference";
+        function normalize(v) {
+          v = String(v || "").trim().toLowerCase();
+          return v === "light" || v === "dark" || v === "system" ? v : "system";
+        }
+        function resolve(pref) {
+          if (pref === "system") {
+            return window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light";
+          }
+          return pref;
+        }
+        var pref = "system";
+        try {
+          var userRaw = localStorage.getItem(USER_KEY);
+          if (userRaw) {
+            var user = JSON.parse(userRaw);
+            if (user && user.theme) pref = normalize(user.theme);
+          } else {
+            var stored = localStorage.getItem(PREF_KEY);
+            if (stored) pref = normalize(stored);
+          }
+        } catch (e) {}
+        var resolved = resolve(pref);
+        document.documentElement.classList.toggle("dark", resolved === "dark");
+        document.documentElement.dataset.theme = pref;
+        document.documentElement.dataset.resolvedTheme = resolved;
+      })();
+    </script>
     <div id="root"></div>
   </body>
 </html>

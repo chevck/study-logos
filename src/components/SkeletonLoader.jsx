@@ -1,11 +1,11 @@
 export default function SkeletonLoader({ ariaLabel = 'Loading' }) {
   const bar = (w) => (
-    <div className={`h-4 animate-pulse rounded-lg bg-gray-200 ${w}`} aria-hidden />
+    <div className={`h-4 animate-pulse rounded-lg bg-ep-skeleton ${w}`} aria-hidden />
   );
 
   return (
     <div
-      className='space-y-5 rounded-2xl border border-ep-line/85 bg-white/70 p-5 shadow-inner backdrop-blur-sm'
+      className="space-y-5 rounded-2xl border border-ep-line/85 bg-ep-surface-panel/70 p-5 shadow-inner backdrop-blur-sm"
       role="status"
       aria-label={ariaLabel}
     >
@@ -14,7 +14,7 @@ export default function SkeletonLoader({ ariaLabel = 'Loading' }) {
         {bar('w-full')}
         {bar('w-4/5')}
       </div>
-      <div className='space-y-2 rounded-xl border border-ep-line/70 bg-white/90 p-4 shadow-inner'>
+      <div className="space-y-2 rounded-xl border border-ep-line/70 bg-ep-surface-panel/90 p-4 shadow-inner">
         {bar('w-2/5')}
         {bar('w-full')}
         {bar('w-full')}

@@ -15,7 +15,7 @@ export default function Toast({ message, onDismiss }) {
       role="status"
       aria-live="polite"
     >
-      <div className='rounded-[1.5rem] border border-ep-line/85 bg-white/95 px-5 py-3 text-center font-sans text-sm font-bold leading-snug text-ep-ink shadow-card backdrop-blur-md'>
+      <div className='rounded-[1.5rem] border border-ep-line/85 bg-ep-surface-panel/95 px-5 py-3 text-center font-sans text-sm font-bold leading-snug text-ep-ink shadow-card backdrop-blur-md'>
         {message}
       </div>
     </div>

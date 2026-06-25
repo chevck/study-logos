@@ -136,6 +136,8 @@ export async function fetchBreakdown({
   phraseTransliteration,
   phraseOriginal,
   readerFirstName,
+  section,
+  coreContext,
 }) {
   const res = await apiFetch(`${BASE}/api/breakdown`, {
     method: "POST",
@@ -148,6 +150,8 @@ export async function fetchBreakdown({
       phraseTransliteration,
       phraseOriginal,
       readerFirstName: readerFirstName?.trim() || undefined,
+      section,
+      coreContext,
     }),
   });
   if (!res.ok) {
@@ -164,6 +168,11 @@ export async function fetchBreakdown({
     breakdown,
     studyMeta: readStudyMeta(res),
   };
+}
+
+/** Fetch one breakdown section for progressive loading. */
+export async function fetchBreakdownSection(params) {
+  return fetchBreakdown(params);
 }
 
 export async function submitExperienceReview(payload) {

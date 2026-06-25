@@ -13,7 +13,7 @@ import Logo from "./components/Logo.jsx";
 import UserAvatarMenu from "./components/UserAvatarMenu.jsx";
 import {
   clearAuth,
-  fetchBreakdown,
+  fetchBreakdownSection,
   fetchNotebook,
   fetchPhrases,
   fetchSessionUser,
@@ -24,6 +24,7 @@ import {
   ExperienceReviewRequiredError,
   saveNotebook,
 } from "./lib/api.js";
+import { BREAKDOWN_SECTIONS } from "./lib/breakdownSections.js";
 import { applyTheme, normalizeTheme } from "./lib/theme.js";
 import { getThemePreference } from "./lib/authStorage.js";
 import {
@@ -160,6 +161,7 @@ export default function StudyApp() {
   const [phrasesLoading, setPhrasesLoading] = useState(false);
   const [phrasesError, setPhrasesError] = useState("");
   const [breakdown, setBreakdown] = useState(null);
+  const [revealedSectionCount, setRevealedSectionCount] = useState(0);
 
   const translationCodes = useMemo(
     () =>
@@ -181,6 +183,7 @@ export default function StudyApp() {
 
   const [crossRefPreview, setCrossRefPreview] = useState(null);
   const crossRefReqRef = useRef(0);
+  const breakdownReqRef = useRef(0);
   const [showAddToHomeScreen, setShowAddToHomeScreen] = useState(false);
   const [experienceReviewRequired, setExperienceReviewRequired] = useState(false);
 
@@ -348,26 +351,33 @@ export default function StudyApp() {
   const loadBreakdown = useCallback(
     async (phraseObj, ref, text, trans, studyLangOverride) => {
       const studyLang = studyLangOverride ?? studyLanguage;
+      const reqId = ++breakdownReqRef.current;
+
       setLoading(true);
-      setBreakdown(null);
+      setBreakdown({ phrase: phraseObj.text, reference: ref });
+      setRevealedSectionCount(0);
       setError("");
-      try {
-        const { breakdown: data, studyMeta } = await fetchBreakdown({
-          phrase: phraseObj.text,
-          reference: ref,
-          verseText: text,
-          translation: trans,
-          studyLanguage: studyLang,
-          phraseTransliteration: phraseObj.transliteration,
-          phraseOriginal: phraseObj.original,
-          readerFirstName: firstNameFromFullName(authUser?.fullName),
-        });
-        setBreakdown(data);
-        if (studyMeta?.experienceReviewRequired) {
-          setExperienceReviewRequired(true);
+
+      const merged = { phrase: phraseObj.text, reference: ref };
+      const pending = {};
+      let revealed = 0;
+
+      const revealQueuedSections = () => {
+        while (revealed < BREAKDOWN_SECTIONS.length) {
+          const section = BREAKDOWN_SECTIONS[revealed];
+          if (!pending[section]) break;
+          Object.assign(merged, pending[section]);
+          revealed += 1;
+          if (reqId !== breakdownReqRef.current) return;
+          setBreakdown({ ...merged });
+          setRevealedSectionCount(revealed);
         }
-      } catch (e) {
+      };
+
+      const handleBreakdownError = (e) => {
+        if (reqId !== breakdownReqRef.current) return;
         setBreakdown(null);
+        setRevealedSectionCount(0);
         if (e instanceof GuestLimitError) {
           handleGuestLimit(e);
           return;
@@ -377,8 +387,65 @@ export default function StudyApp() {
           return;
         }
         setError(e.message || appCopy(studyLanguage).errLoadBreakdown);
+      };
+
+      const baseParams = {
+        phrase: phraseObj.text,
+        reference: ref,
+        verseText: text,
+        translation: trans,
+        studyLanguage: studyLang,
+        phraseTransliteration: phraseObj.transliteration,
+        phraseOriginal: phraseObj.original,
+        readerFirstName: firstNameFromFullName(authUser?.fullName),
+      };
+
+      try {
+        const { breakdown: coreData, studyMeta } = await fetchBreakdownSection({
+          ...baseParams,
+          section: "core",
+        });
+        if (reqId !== breakdownReqRef.current) return;
+        if (studyMeta?.experienceReviewRequired) {
+          setExperienceReviewRequired(true);
+        }
+        pending.core = coreData;
+        revealQueuedSections();
+
+        const tailSections = BREAKDOWN_SECTIONS.slice(1);
+        await Promise.all(
+          tailSections.map(async (section) => {
+            try {
+              const { breakdown: sectionData, studyMeta: sectionMeta } =
+                await fetchBreakdownSection({
+                  ...baseParams,
+                  section,
+                  coreContext: pending.core,
+                });
+              if (reqId !== breakdownReqRef.current) return;
+              if (sectionMeta?.experienceReviewRequired) {
+                setExperienceReviewRequired(true);
+              }
+              pending[section] = sectionData;
+              revealQueuedSections();
+            } catch (e) {
+              if (reqId !== breakdownReqRef.current) return;
+              if (e instanceof GuestLimitError || e instanceof ExperienceReviewRequiredError) {
+                handleBreakdownError(e);
+                return;
+              }
+              pending[section] = {};
+              revealQueuedSections();
+              setError((prev) => prev || e.message || appCopy(studyLanguage).errLoadBreakdown);
+            }
+          }),
+        );
+      } catch (e) {
+        handleBreakdownError(e);
       } finally {
-        setLoading(false);
+        if (reqId === breakdownReqRef.current) {
+          setLoading(false);
+        }
       }
     },
     [studyLanguage, handleGuestLimit, authUser],
@@ -469,6 +536,7 @@ export default function StudyApp() {
     setPhrases([]);
     setPhrasesError("");
     setBreakdown(null);
+    setRevealedSectionCount(0);
     setCrossRefPreview(null);
     try {
       await loadVerseAndPhrases(ref, translation);
@@ -497,6 +565,7 @@ export default function StudyApp() {
     setStudyLanguage(code);
     setTranslation(nextTrans);
     setBreakdown(null);
+    setRevealedSectionCount(0);
     setCrossRefPreview(null);
     setPhrases([]);
     setPhrasesError("");
@@ -608,6 +677,7 @@ export default function StudyApp() {
   const handleTranslationChange = async (code) => {
     setTranslation(code);
     setBreakdown(null);
+    setRevealedSectionCount(0);
     setActivePhraseId(null);
     setCrossRefPreview(null);
     if (!displayReference) return;
@@ -901,6 +971,7 @@ export default function StudyApp() {
             <WordBreakdownPanel
               breakdown={breakdown}
               loading={loading}
+              revealedSectionCount={revealedSectionCount}
               onSave={handleSave}
               savedWords={currentSaved}
               saveRequiresLogin={!isLoggedIn}

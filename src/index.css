@@ -523,6 +523,21 @@ html.dark {
   }
 }
 
+@keyframes breakdown-segment-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.breakdown-segment-enter {
+  animation: breakdown-segment-enter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .landing-fade-in,
   .landing-underline-grow,
@@ -543,5 +558,11 @@ html.dark {
     opacity: 1;
     transform: none;
     transition: none;
+  }
+
+  .breakdown-segment-enter {
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
 }

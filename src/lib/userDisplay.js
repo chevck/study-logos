@@ -1,3 +1,11 @@
+export function firstNameFromFullName(fullName) {
+  const parts = String(fullName ?? "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  return parts[0] ?? null;
+}
+
 export function initialsFromName(fullName) {
   const parts = String(fullName ?? "")
     .trim()

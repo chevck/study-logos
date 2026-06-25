@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import Logo from "../components/Logo.jsx";
+import AppIcon from "../components/AppIcon.jsx";
 import RevealOnScroll from "../components/landing/RevealOnScroll.jsx";
 import { ghostBtn, surfaceCard } from "../lib/uiClasses.js";
 
@@ -29,6 +30,7 @@ function Nav() {
         >
           {[
             ["#features", "Features"],
+            ["#approach", "Our approach"],
             ["#how-it-works", "How it works"],
             ["#notebook", "Notebook"],
           ].map(([href, label]) => (
@@ -72,15 +74,16 @@ function Hero() {
 
       <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:gap-16">
         <div className="max-w-xl">
-          <p className="landing-fade-in mb-4 inline-flex items-center gap-2 rounded-full border border-ep-accent-muted/40 bg-ep-accent-soft/80 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-ep-ink/80">
-            <span className="h-1.5 w-1.5 rounded-full bg-ep-accent animate-pulse-soft" />
-            Word-level Bible study
+          <p className="landing-fade-in mb-4 inline-flex items-center gap-2.5 rounded-full border border-ep-accent-muted/40 bg-ep-accent-soft/80 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-ep-ink/80">
+            <AppIcon variant="gold" className="h-5 w-5" alt="" />
+            Original-language word study
           </p>
 
           <h1
             className="landing-fade-in landing-delay-1 text-4xl font-extrabold leading-[1.08] tracking-tight text-balance text-ep-ink sm:text-5xl lg:text-[3.25rem]"
           >
             Tap a word.{" "}
+            <span className="text-ep-subtle font-semibold">Or several.</span>{" "}
             <span className="relative inline-block">
               <span className="relative z-10">See the Logos</span>
               <span
@@ -92,9 +95,15 @@ function Hero() {
           </h1>
 
           <p className="landing-fade-in landing-delay-2 mt-5 max-w-lg text-base font-medium leading-relaxed text-pretty text-ep-muted sm:text-lg">
-            Study Logos turns any verse into a living language lesson — original
-            words, transliteration, narrative case studies, and cross-references
-            in one calm, focused workspace.
+            Study Logos maps each verse to original-language words — tap a single
+            word or a group of words when they share one transliteration — and
+            meets you at the moment something clicks.
+          </p>
+
+          <p className="landing-fade-in landing-delay-2 mt-4 max-w-lg border-l-2 border-ep-accent/50 pl-4 text-sm font-semibold leading-relaxed text-ep-ink/90 sm:text-base">
+            We won&apos;t feed you every detail. We lead you to the point that
+            stirs your interest — so you keep researching, and more light is
+            expounded in your heart.
           </p>
 
           <div className="landing-fade-in landing-delay-3 mt-8 flex flex-wrap items-center gap-3">
@@ -110,7 +119,7 @@ function Hero() {
             {[
               ["Greek & Hebrew", "Original insight"],
               ["NKJV · NLT · AMP", "Multiple editions"],
-              ["Personal notebook", "Save every word"],
+              ["Personal notebook", "Save every insight"],
             ].map(([term, desc]) => (
               <div key={term}>
                 <dt className="text-sm font-extrabold text-ep-ink">{term}</dt>
@@ -136,11 +145,11 @@ function Hero() {
               />
               <div className="ep-inner-panel absolute inset-x-4 bottom-4 p-4 sm:inset-x-5 sm:bottom-5">
                 <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-ep-muted">
-                  Romans 5:13 · NKJV
+                  John 1:1 · NKJV
                 </p>
                 <p className="mt-1 text-sm font-semibold leading-snug text-ep-ink">
-                  Tap <span className="text-ep-accent">“sin”</span> → ἁμαρτία ·
-                  missing the mark · case study unlocked
+                  Tap <span className="text-ep-accent">“was”</span> → ἦν · ēn ·
+                  one word, one Greek root · case study unlocked
                 </p>
               </div>
             </div>
@@ -171,20 +180,57 @@ function FeatureCard({ image, alt, title, body, delay }) {
   );
 }
 
+function PhilosophySection() {
+  return (
+    <section id="approach" className="py-16 sm:py-20">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <RevealOnScroll
+          className={`relative overflow-hidden px-8 py-10 sm:px-12 sm:py-14 ${surfaceCard}`}
+        >
+          <div
+            className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-ep-accent/20 blur-3xl"
+            aria-hidden
+          />
+          <div className="relative mx-auto max-w-3xl text-center">
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-ep-muted">
+              Our approach
+            </p>
+            <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-balance text-ep-ink sm:text-3xl">
+              A spark for your own study — not a dump of every detail
+            </h2>
+            <p className="mt-5 text-base font-medium leading-relaxed text-ep-muted sm:text-lg">
+              Study Logos is built to lead you to the insight that catches your
+              attention: the original word, the first mention, the cross-reference
+              that won&apos;t leave you alone. We don&apos;t try to answer every
+              question for you.
+            </p>
+            <p className="mt-4 text-base font-semibold leading-relaxed text-ep-ink sm:text-lg">
+              We point you to what triggers deeper research — the kind that opens
+              your Bible, your commentaries, and your prayer — until more light
+              is expounded in your heart.
+            </p>
+          </div>
+        </RevealOnScroll>
+      </div>
+    </section>
+  );
+}
+
 function Features() {
   return (
     <section id="features" className="py-16 sm:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <RevealOnScroll className="mx-auto max-w-2xl text-center">
           <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-ep-muted">
-            Built for depth, not distraction
+            Built to spark, not overwhelm
           </p>
           <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-ep-ink sm:text-4xl">
-            Everything you need at the word level
+            Enough to ignite — room for you to go further
           </h2>
           <p className="mt-4 text-base font-medium leading-relaxed text-ep-muted">
-            From quick lookups to saved insights — Study Logos keeps scripture
-            study tactile, visual, and memorable.
+            Each breakdown gives you a clear entry point — definition, first
+            mention, narrative illustration — then trusts you to follow the
+            thread. The goal is curiosity that keeps burning.
           </p>
         </RevealOnScroll>
 
@@ -194,7 +240,7 @@ function Features() {
             image={IMAGES.wordInsight}
             alt="Desk setup for focused study with notes and laptop"
             title="Original language breakdown"
-            body="See Greek and Hebrew forms, transliteration, and rich definitions generated for the exact word you tapped — in context of the verse."
+            body="Greek and Hebrew forms, transliteration, and definitions for the word you tapped — a clear entry point that sparks deeper research, not a lesson that ends when you close the panel."
           />
           <FeatureCard
             delay={120}
@@ -225,8 +271,8 @@ function HowItWorks() {
     },
     {
       n: "02",
-      title: "Tap any word",
-      body: "Each word becomes a doorway. Study Logos pulls original-language insight, narrative case studies, and cross-references.",
+      title: "Follow what stirs you",
+      body: "Each tap opens a door — original language, first mention, case study — not an encyclopedia. Take what sparks you and go deeper on your own.",
     },
     {
       n: "03",
@@ -359,8 +405,9 @@ function CtaBand() {
             Ready to study deeper?
           </h2>
           <p className="relative mx-auto mt-4 max-w-xl text-base font-medium text-white/75">
-            Open a passage, tap a word, and let the original languages speak
-            with clarity. No clutter — just scripture, insight, and your notebook.
+            Open a passage, tap a word, and let one insight lead to the next.
+            We won&apos;t feed you every detail — we&apos;ll lead you to the
+            point that makes you want more, until light breaks in your heart.
           </p>
           <div className="relative mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link
@@ -388,7 +435,7 @@ function Footer() {
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-4 sm:flex-row sm:px-6">
         <Logo />
         <p className="text-sm font-medium text-ep-muted">
-          © {new Date().getFullYear()} Study Logos · Scripture study at the word level
+          © {new Date().getFullYear()} Study Logos · Beta testing · Scripture study at the word level
         </p>
         <div className="flex gap-4 text-sm font-semibold text-ep-muted">
           <Link to="/study" className="transition hover:text-ep-ink">
@@ -408,7 +455,7 @@ function Footer() {
 
 export default function LandingPage() {
   useEffect(() => {
-    document.title = "Study Logos — Word-level Bible study";
+    document.title = "Study Logos — Original-language word study";
   }, []);
 
   return (
@@ -416,6 +463,7 @@ export default function LandingPage() {
       <Nav />
       <main>
         <Hero />
+        <PhilosophySection />
         <Features />
         <HowItWorks />
         <NotebookSection />

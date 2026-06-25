@@ -44,7 +44,7 @@ export default function NotebookDrawer({ open, entries, onClose, onRemove, study
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <p className="font-extrabold text-ep-accent">{e.word}</p>
+                      <p className="font-extrabold text-ep-accent">{e.phrase ?? e.word}</p>
                       <p className="text-xs font-bold text-ep-subtle">{e.reference}</p>
                     </div>
                     <button

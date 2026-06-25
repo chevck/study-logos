@@ -11,13 +11,35 @@ import { applyTheme, normalizeTheme } from "./theme.js";
 const BASE =
   import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "http://localhost:6001";
 
-async function parseError(res) {
+export class ExperienceReviewRequiredError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "ExperienceReviewRequiredError";
+  }
+}
+
+function readStudyMeta(res) {
+  const count = res.headers.get("X-Study-Count");
+  if (count == null || count === "") return null;
+  return {
+    studyCount: Number(count),
+    experienceReviewRequired:
+      res.headers.get("X-Experience-Review-Required") === "1",
+  };
+}
+
+async function parseErrorBody(res) {
   try {
     const body = await res.json();
-    return body.error || body.message || res.statusText;
+    return body;
   } catch {
-    return res.statusText;
+    return {};
   }
+}
+
+async function parseError(res) {
+  const body = await parseErrorBody(res);
+  return body.error || body.message || res.statusText;
 }
 
 function applyRefreshedToken(res) {
@@ -85,22 +107,69 @@ export async function saveNotebook(notebookId, entries) {
   return res.json();
 }
 
-export async function fetchBreakdown({
-  word,
+export async function fetchPhrases({
   reference,
   verseText,
   translation,
   studyLanguage,
 }) {
-  const res = await apiFetch(`${BASE}/api/breakdown`, {
+  const res = await apiFetch(`${BASE}/api/phrases`, {
     method: "POST",
     body: JSON.stringify({
-      word,
       reference,
       verseText,
       translation,
       studyLanguage: studyLanguage ?? "eng",
     }),
+  });
+  if (!res.ok) throw new Error(await parseError(res));
+  return res.json();
+}
+
+export async function fetchBreakdown({
+  phrase,
+  word,
+  reference,
+  verseText,
+  translation,
+  studyLanguage,
+  phraseTransliteration,
+  phraseOriginal,
+  readerFirstName,
+}) {
+  const res = await apiFetch(`${BASE}/api/breakdown`, {
+    method: "POST",
+    body: JSON.stringify({
+      phrase: phrase ?? word,
+      reference,
+      verseText,
+      translation,
+      studyLanguage: studyLanguage ?? "eng",
+      phraseTransliteration,
+      phraseOriginal,
+      readerFirstName: readerFirstName?.trim() || undefined,
+    }),
+  });
+  if (!res.ok) {
+    const body = await parseErrorBody(res);
+    if (res.status === 403 && body.code === "EXPERIENCE_REVIEW_REQUIRED") {
+      throw new ExperienceReviewRequiredError(
+        body.error || "Please complete your experience review to continue.",
+      );
+    }
+    throw new Error(body.error || body.message || res.statusText);
+  }
+  const breakdown = await res.json();
+  return {
+    breakdown,
+    studyMeta: readStudyMeta(res),
+  };
+}
+
+export async function submitExperienceReview(payload) {
+  const res = await apiFetch(`${BASE}/api/feedback/experience`, {
+    method: "POST",
+    body: JSON.stringify(payload),
   });
   if (!res.ok) throw new Error(await parseError(res));
   return res.json();

@@ -6,6 +6,8 @@ import NotebookDrawer from "./components/NotebookDrawer.jsx";
 import StudyLanguagePills from "./components/StudyLanguagePills.jsx";
 import TranslationPills from "./components/TranslationPills.jsx";
 import Toast from "./components/Toast.jsx";
+import AddToHomeScreenPrompt from "./components/AddToHomeScreenPrompt.jsx";
+import ExperienceReviewModal from "./components/ExperienceReviewModal.jsx";
 import ReferencePicker from "./components/ReferencePicker.jsx";
 import Logo from "./components/Logo.jsx";
 import UserAvatarMenu from "./components/UserAvatarMenu.jsx";
@@ -13,11 +15,13 @@ import {
   clearAuth,
   fetchBreakdown,
   fetchNotebook,
+  fetchPhrases,
   fetchSessionUser,
   fetchVerse,
   getAuthToken,
   getAuthUser,
   GuestLimitError,
+  ExperienceReviewRequiredError,
   saveNotebook,
 } from "./lib/api.js";
 import { applyTheme, normalizeTheme } from "./lib/theme.js";
@@ -36,10 +40,21 @@ import {
   getVerseCount,
   parseReferenceString,
 } from "./lib/bibleBooks.js";
-import { findTokenInVerse } from "./lib/matchTransliteration.js";
+import { findPhraseInVerse } from "./lib/matchTransliteration.js";
+import { normalizeVerseText } from "./lib/normalizeVerse.js";
+import { firstNameFromFullName } from "./lib/userDisplay.js";
+import {
+  canSuggestHomeScreen,
+  consumePendingHomeScreenPrompt,
+  isHomeScreenPromptDismissed,
+} from "./lib/homeScreen.js";
 
-function notebookEntryId(reference, word, original) {
-  return `${reference}|${word}|${original}`;
+function notebookEntryId(reference, phrase, original) {
+  return `${reference}|${phrase}|${original}`;
+}
+
+function breakdownSurfacePhrase(breakdown) {
+  return breakdown?.phrase ?? breakdown?.word ?? "";
 }
 
 function loadLegacyNotebook() {
@@ -140,7 +155,10 @@ export default function StudyApp() {
   const [studyLanguage, setStudyLanguage] = useState("eng");
   const [translation, setTranslation] = useState("NKJV");
 
-  const [activeWord, setActiveWord] = useState(null);
+  const [activePhraseId, setActivePhraseId] = useState(null);
+  const [phrases, setPhrases] = useState([]);
+  const [phrasesLoading, setPhrasesLoading] = useState(false);
+  const [phrasesError, setPhrasesError] = useState("");
   const [breakdown, setBreakdown] = useState(null);
 
   const translationCodes = useMemo(
@@ -163,11 +181,21 @@ export default function StudyApp() {
 
   const [crossRefPreview, setCrossRefPreview] = useState(null);
   const crossRefReqRef = useRef(0);
+  const [showAddToHomeScreen, setShowAddToHomeScreen] = useState(false);
+  const [experienceReviewRequired, setExperienceReviewRequired] = useState(false);
 
   useEffect(() => {
     document.documentElement.lang = studyLanguage === "yor" ? "yo" : "en";
     document.title = t.docTitle;
   }, [studyLanguage, t.docTitle]);
+
+  useEffect(() => {
+    if (!sessionChecked || !isLoggedIn) return;
+    if (experienceReviewRequired) return;
+    if (!consumePendingHomeScreenPrompt()) return;
+    if (!canSuggestHomeScreen() || isHomeScreenPromptDismissed()) return;
+    setShowAddToHomeScreen(true);
+  }, [sessionChecked, isLoggedIn, experienceReviewRequired]);
 
   useEffect(() => {
     let cancelled = false;
@@ -201,6 +229,7 @@ export default function StudyApp() {
         if (cancelled) return;
         setIsLoggedIn(true);
         setAuthUser(data.user ?? getAuthUser());
+        setExperienceReviewRequired(Boolean(data.experienceReviewRequired));
         applyTheme(normalizeTheme(data.user?.theme));
         return loadNotebookOnce();
       })
@@ -281,31 +310,70 @@ export default function StudyApp() {
     if (!breakdown?.original) return false;
     const id = notebookEntryId(
       displayReference,
-      breakdown.word,
+      breakdownSurfacePhrase(breakdown),
       breakdown.original,
     );
     return notebook.some((n) => n.id === id);
   }, [notebook, breakdown, displayReference]);
 
-  const loadBreakdown = useCallback(
-    async (word, ref, text, trans, studyLangOverride) => {
+  const loadPhrasesForVerse = useCallback(
+    async (ref, text, trans, studyLangOverride) => {
       const studyLang = studyLangOverride ?? studyLanguage;
-      setLoading(true);
-      setBreakdown(null);
-      setError("");
+      setPhrasesLoading(true);
+      setPhrasesError("");
+      setPhrases([]);
+      setActivePhraseId(null);
       try {
-        const data = await fetchBreakdown({
-          word,
+        const data = await fetchPhrases({
           reference: ref,
           verseText: text,
           translation: trans,
           studyLanguage: studyLang,
         });
+        setPhrases(Array.isArray(data.phrases) ? data.phrases : []);
+      } catch (e) {
+        setPhrases([]);
+        if (e instanceof GuestLimitError) {
+          handleGuestLimit(e);
+          return;
+        }
+        setPhrasesError(e.message || appCopy(studyLanguage).phrasesError);
+      } finally {
+        setPhrasesLoading(false);
+      }
+    },
+    [studyLanguage, handleGuestLimit],
+  );
+
+  const loadBreakdown = useCallback(
+    async (phraseObj, ref, text, trans, studyLangOverride) => {
+      const studyLang = studyLangOverride ?? studyLanguage;
+      setLoading(true);
+      setBreakdown(null);
+      setError("");
+      try {
+        const { breakdown: data, studyMeta } = await fetchBreakdown({
+          phrase: phraseObj.text,
+          reference: ref,
+          verseText: text,
+          translation: trans,
+          studyLanguage: studyLang,
+          phraseTransliteration: phraseObj.transliteration,
+          phraseOriginal: phraseObj.original,
+          readerFirstName: firstNameFromFullName(authUser?.fullName),
+        });
         setBreakdown(data);
+        if (studyMeta?.experienceReviewRequired) {
+          setExperienceReviewRequired(true);
+        }
       } catch (e) {
         setBreakdown(null);
         if (e instanceof GuestLimitError) {
           handleGuestLimit(e);
+          return;
+        }
+        if (e instanceof ExperienceReviewRequiredError) {
+          setExperienceReviewRequired(true);
           return;
         }
         setError(e.message || appCopy(studyLanguage).errLoadBreakdown);
@@ -313,7 +381,7 @@ export default function StudyApp() {
         setLoading(false);
       }
     },
-    [studyLanguage, handleGuestLimit],
+    [studyLanguage, handleGuestLimit, authUser],
   );
 
   const loadVerse = useCallback(
@@ -326,7 +394,7 @@ export default function StudyApp() {
           studyLanguageToBibleApiLanguage(studyLanguage);
         const data = await fetchVerse(ref, trans, apiLang);
         setDisplayReference(data.reference || ref);
-        setVerseText(data.text || "");
+        setVerseText(normalizeVerseText(data.text || ""));
         return data;
       } catch (e) {
         if (e instanceof GuestLimitError) {
@@ -344,6 +412,22 @@ export default function StudyApp() {
       }
     },
     [studyLanguage, handleGuestLimit],
+  );
+
+  const loadVerseAndPhrases = useCallback(
+    async (ref, trans, opts = {}) => {
+      const data = await loadVerse(ref, trans, opts);
+      if (data?.text) {
+        await loadPhrasesForVerse(
+          data.reference || ref,
+          data.text,
+          trans,
+          opts.studyLanguageOverride,
+        );
+      }
+      return data;
+    },
+    [loadVerse, loadPhrasesForVerse],
   );
 
   const syncPickerFromRefString = useCallback((refString) => {
@@ -381,21 +465,28 @@ export default function StudyApp() {
   const handleSearch = async (e) => {
     e.preventDefault();
     const ref = formatReference(pickerBookSlug, pickerChapter, pickerVerse);
-    setActiveWord(null);
+    setActivePhraseId(null);
+    setPhrases([]);
+    setPhrasesError("");
     setBreakdown(null);
     setCrossRefPreview(null);
     try {
-      await loadVerse(ref, translation);
+      await loadVerseAndPhrases(ref, translation);
     } catch {
       /* handled */
     }
   };
 
-  const handleWordClick = async (word) => {
-    if (!verseText || !displayReference) return;
-    setActiveWord(word);
+  const handlePhraseClick = async (phrase) => {
+    if (!verseText || !displayReference || !phrase?.text) return;
+    setActivePhraseId(phrase.id);
     setCrossRefPreview(null);
-    await loadBreakdown(word, displayReference, verseText, translation);
+    await loadBreakdown(phrase, displayReference, verseText, translation);
+  };
+
+  const handleRetryPhrases = async () => {
+    if (!verseText || !displayReference) return;
+    await loadPhrasesForVerse(displayReference, verseText, translation);
   };
 
   const handleStudyLanguageChange = async (code) => {
@@ -407,26 +498,32 @@ export default function StudyApp() {
     setTranslation(nextTrans);
     setBreakdown(null);
     setCrossRefPreview(null);
+    setPhrases([]);
+    setPhrasesError("");
+    setActivePhraseId(null);
     if (!displayReference) return;
     try {
-      await loadVerse(displayReference, nextTrans, {
+      await loadVerseAndPhrases(displayReference, nextTrans, {
         bibleApiLanguage: studyLanguageToBibleApiLanguage(code),
         softFail: true,
+        studyLanguageOverride: code,
       });
     } catch {
       /* loadVerse sets error state */
     }
   };
 
-  const handleCrossRefClick = async (refString) => {
-    const ref = refString.trim();
-    if (!ref || !breakdown?.word) return;
+  const handleCrossRefClick = async (refString, opts = {}) => {
+    const ref = String(refString ?? "").trim();
+    const surfacePhrase = breakdownSurfacePhrase(breakdown);
+    if (!ref || !surfacePhrase) return;
 
     const reqId = ++crossRefReqRef.current;
     setCrossRefPreview({
+      clickedReference: ref,
       reference: ref,
       text: "",
-      highlightWord: null,
+      highlightPhrase: null,
       loading: true,
     });
 
@@ -437,13 +534,18 @@ export default function StudyApp() {
 
       const resolvedRef = data.reference || ref;
       const text = data.text || "";
-      const highlightWord = findTokenInVerse(text, breakdown.word);
+      let highlightPhrase = findPhraseInVerse(text, surfacePhrase);
+      if (!highlightPhrase && opts.relatedForm) {
+        highlightPhrase = findPhraseInVerse(text, opts.relatedForm);
+      }
 
       setCrossRefPreview({
+        clickedReference: ref,
         reference: resolvedRef,
         text,
-        highlightWord,
+        highlightPhrase,
         loading: false,
+        isFirstMention: Boolean(opts.isFirstMention),
       });
     } catch (e) {
       if (reqId !== crossRefReqRef.current) return;
@@ -453,17 +555,20 @@ export default function StudyApp() {
         return;
       }
       setCrossRefPreview({
+        clickedReference: ref,
         reference: ref,
         text: "",
-        highlightWord: null,
+        highlightPhrase: null,
         loading: false,
         error: e.message || t.errLoadVerse,
+        isFirstMention: Boolean(opts.isFirstMention),
       });
     }
   };
 
   const handleSave = () => {
     if (!breakdown?.original) return;
+    const surfacePhrase = breakdownSurfacePhrase(breakdown);
     if (!isLoggedIn) {
       setToast(t.toastSignInToSave);
       navigate("/login", {
@@ -476,7 +581,7 @@ export default function StudyApp() {
     }
     const id = notebookEntryId(
       displayReference,
-      breakdown.word,
+      surfacePhrase,
       breakdown.original,
     );
     const exists = notebook.some((n) => n.id === id);
@@ -489,7 +594,8 @@ export default function StudyApp() {
       ...n,
       {
         id,
-        word: breakdown.word,
+        word: surfacePhrase,
+        phrase: surfacePhrase,
         reference: displayReference,
         original: breakdown.original,
         transliteration: breakdown.transliteration,
@@ -501,9 +607,12 @@ export default function StudyApp() {
 
   const handleTranslationChange = async (code) => {
     setTranslation(code);
+    setBreakdown(null);
+    setActivePhraseId(null);
+    setCrossRefPreview(null);
     if (!displayReference) return;
     try {
-      await loadVerse(displayReference, code, { softFail: true });
+      await loadVerseAndPhrases(displayReference, code, { softFail: true });
     } catch {
       /* loadVerse sets error */
     }
@@ -532,7 +641,12 @@ export default function StudyApp() {
         <div className='mx-auto flex max-w-5xl flex-col gap-3 px-3 py-3 sm:px-6 sm:py-4'>
           <div className='flex items-center gap-3 md:gap-4'>
             <Link to="/" className='min-w-0 shrink text-left'>
-              <Logo brandWord1={t.brandWord1} brandWord2={t.brandWord2} />
+              <Logo
+                brandWord1={t.brandWord1}
+                brandWord2={t.brandWord2}
+                betaLabel={t.betaBadge}
+                betaTitle={t.betaNotice}
+              />
             </Link>
 
             <nav
@@ -625,7 +739,7 @@ export default function StudyApp() {
           <h2 className='text-xl font-extrabold tracking-tight text-balance text-ep-ink sm:text-2xl md:text-3xl'>
             {displayReference ? (
               <>
-                {t.heroWordInsight}{" "}
+                {t.heroPhraseInsight}{" "}
                 <span className='text-ep-subtle'>{displayReference}</span>
               </>
             ) : (
@@ -739,13 +853,42 @@ export default function StudyApp() {
                 {t.loadingPassage}
               </p>
             )}
-            {!verseLoading && verseText && (
+            {!verseLoading && phrasesLoading && verseText && (
+              <p className='text-sm font-semibold text-ep-subtle'>
+                {t.loadingPhrases}
+              </p>
+            )}
+            {!verseLoading && !phrasesLoading && verseText && phrases.length > 0 && (
               <ScriptureViewer
                 verseText={verseText}
-                activeWord={activeWord}
-                onWordClick={handleWordClick}
+                phrases={phrases}
+                activePhraseId={activePhraseId}
+                onPhraseClick={handlePhraseClick}
                 ariaLabel={t.ariaScriptureRegion}
               />
+            )}
+            {!verseLoading && !phrasesLoading && verseText && phrases.length === 0 && (
+              <div className='flex flex-col gap-3'>
+                <ScriptureViewer
+                  verseText={verseText}
+                  interactive={false}
+                  ariaLabel={t.ariaScriptureRegion}
+                />
+                {phrasesError && (
+                  <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
+                    <p className='text-sm font-semibold text-ep-danger-text' role='alert'>
+                      {phrasesError}
+                    </p>
+                    <button
+                      type='button'
+                      onClick={handleRetryPhrases}
+                      className='shrink-0 rounded-full border border-ep-line bg-ep-surface-panel px-4 py-2 text-xs font-bold text-ep-ink shadow-inner transition hover:bg-ep-accent-soft'
+                    >
+                      {t.phrasesRetry}
+                    </button>
+                  </div>
+                )}
+              </div>
             )}
             {!verseLoading && !verseText && (
               <p className='text-sm italic font-medium text-ep-faint'>
@@ -781,6 +924,18 @@ export default function StudyApp() {
       />
 
       <Toast message={toast} onDismiss={() => setToast("")} />
+
+      <AddToHomeScreenPrompt
+        open={showAddToHomeScreen && !experienceReviewRequired}
+        copy={t}
+        onClose={() => setShowAddToHomeScreen(false)}
+      />
+
+      <ExperienceReviewModal
+        open={experienceReviewRequired && isLoggedIn}
+        copy={t}
+        onSubmitted={() => setExperienceReviewRequired(false)}
+      />
     </div>
   );
 }

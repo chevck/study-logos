@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import AuthLayout from "../components/auth/AuthLayout.jsx";
 import { login } from "../lib/api.js";
+import { markPendingHomeScreenPrompt } from "../lib/homeScreen.js";
 import { alertError, alertSuccess, inputClass, labelClass, primaryBtn } from "../lib/uiClasses.js";
 
 export default function LoginPage() {
@@ -21,6 +22,7 @@ export default function LoginPage() {
 
     try {
       await login({ email, password });
+      markPendingHomeScreenPrompt();
       navigate(location.state?.returnTo ?? "/study", { replace: true });
     } catch (err) {
       setError(err.message || "Could not sign in.");

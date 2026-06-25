@@ -45,7 +45,9 @@ export const APP_COPY = {
     heroPhraseInsight: 'Language insight:',
     heroFindPassage: 'Find a passage, then tap any word or words',
     heroBlurb:
-      'Choose a study language and Bible edition, load a passage, and tap words grouped by transliteration. We won\'t feed you every detail — we lead you to what stirs your interest, so you keep researching and more light is expounded in your heart.',
+      'Choose a study language and Bible edition, load a passage, and tap words grouped by transliteration to explore original language, definitions, case studies, and cross-references.',
+    // heroBlurb:
+    //   'Choose a study language and Bible edition, load a passage, and tap words grouped by transliteration. We won\'t feed you every detail — we lead you to what stirs your interest, so you keep researching and more light is expounded in your heart.',
     labelStudyLanguage: 'Study language',
     labelBibleEdition: 'Bible edition',
     srPassageGroup: 'Scripture passage',

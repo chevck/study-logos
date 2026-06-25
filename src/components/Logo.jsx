@@ -9,6 +9,7 @@ export default function Logo({
   showBeta = true,
   betaLabel = 'Beta',
   betaTitle = 'Study Logos is currently in beta testing',
+  inverted = false,
 }) {
   const iconSizes = {
     sm: 'h-8 w-8 shrink-0',
@@ -20,7 +21,12 @@ export default function Logo({
     <div className="flex items-center gap-2.5">
       <AppIcon variant="auto" className={iconSizes[iconSize] ?? iconSizes.md} alt="" />
       {showWordmark ? (
-        <div className="flex items-baseline gap-1 font-extrabold tracking-tight text-ep-ink">
+        <div
+          className={[
+            'flex items-baseline gap-1 font-extrabold tracking-tight',
+            inverted ? 'text-white' : 'text-ep-ink',
+          ].join(' ')}
+        >
           <span className="text-xl lowercase sm:text-2xl">{brandWord1}</span>
           <span className="relative text-xl lowercase sm:text-2xl">
             <span

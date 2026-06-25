@@ -200,6 +200,278 @@ html.dark {
     opacity: 1;
     transform: translateY(0);
   }
+
+  /* Landing — SaaS-style layout (Study Logos palette) */
+  .landing-page {
+    background-color: rgb(var(--ep-surface-panel-rgb) / 1);
+  }
+
+  .landing-hero-grid {
+    background-image:
+      linear-gradient(rgb(var(--ep-line-rgb) / 0.35) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(var(--ep-line-rgb) / 0.35) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: linear-gradient(180deg, black 0%, transparent 85%);
+  }
+
+  .landing-hero-showcase {
+    position: relative;
+  }
+
+  .landing-hero-showcase-glow {
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 20%, rgb(245 184 45 / 0.22), transparent 65%),
+      radial-gradient(ellipse 50% 40% at 15% 80%, rgb(255 234 199 / 0.35), transparent 55%),
+      radial-gradient(ellipse 45% 35% at 88% 65%, rgb(245 184 45 / 0.15), transparent 50%);
+  }
+
+  .landing-hero-showcase-orb-a {
+    animation: landing-orb-drift 12s ease-in-out infinite;
+  }
+
+  .landing-hero-showcase-orb-b {
+    animation: landing-orb-drift 16s ease-in-out infinite reverse;
+  }
+
+  .landing-hero-mockup-frame {
+    background: linear-gradient(
+      135deg,
+      #f5b82d 0%,
+      #ffe8b8 28%,
+      #1c1a16 52%,
+      #f5b82d 78%,
+      #ffe8b8 100%
+    );
+    background-size: 200% 200%;
+    animation: landing-frame-shimmer 10s ease-in-out infinite;
+  }
+
+  .landing-hero-mockup {
+    animation: landing-float 9s ease-in-out infinite;
+  }
+
+  .landing-mockup-chrome {
+    background:
+      linear-gradient(90deg, #1c1a16 0%, #2a2722 45%, #1c1a16 100%);
+  }
+
+  .landing-mockup-scripture {
+    overflow: hidden;
+    background-color: rgb(var(--ep-surface-panel-rgb) / 1);
+    background-image:
+      radial-gradient(circle at 0% 0%, rgb(245 184 45 / 0.18), transparent 42%),
+      radial-gradient(circle at 100% 100%, rgb(255 234 199 / 0.45), transparent 48%),
+      repeating-linear-gradient(
+        -12deg,
+        rgb(245 184 45 / 0.04) 0,
+        rgb(245 184 45 / 0.04) 1px,
+        transparent 1px,
+        transparent 14px
+      );
+  }
+
+  .landing-mockup-breakdown {
+    overflow: hidden;
+    background-color: #1c1a16;
+    background-image:
+      radial-gradient(circle at 100% 0%, rgb(245 184 45 / 0.14), transparent 40%),
+      radial-gradient(circle at 0% 100%, rgb(245 184 45 / 0.08), transparent 45%),
+      linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: auto, auto, 20px 20px, 20px 20px;
+  }
+
+  .landing-mockup-watermark {
+    position: absolute;
+    font-family: var(--font-study-sans);
+    font-weight: 800;
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .landing-mockup-watermark-greek {
+    right: -0.15em;
+    top: 0.05em;
+    font-size: clamp(5rem, 18vw, 8.5rem);
+    color: rgb(245 184 45 / 0.09);
+  }
+
+  .landing-mockup-watermark-hebrew {
+    left: -0.05em;
+    bottom: -0.15em;
+    font-size: clamp(4.5rem, 16vw, 7.5rem);
+    color: rgb(245 184 45 / 0.07);
+  }
+
+  .landing-mockup-word {
+    border-radius: 0.35rem;
+    padding: 0.05em 0.15em;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    transition: background-color 0.2s ease;
+  }
+
+  .landing-mockup-word-active {
+    background: linear-gradient(180deg, rgb(255 248 234 / 1) 0%, rgb(245 184 45 / 0.35) 100%);
+    box-shadow:
+      inset 0 -2px 0 rgb(245 184 45 / 0.75),
+      0 0 0 1px rgb(245 184 45 / 0.2);
+    font-weight: 700;
+    color: rgb(var(--ep-ink-rgb) / 1);
+  }
+
+  .landing-mockup-word:not(.landing-mockup-word-active) {
+    background-color: rgb(var(--ep-accent-soft-rgb) / 0.55);
+    box-shadow: inset 0 -1px 0 rgb(245 184 45 / 0.3);
+  }
+
+  .landing-mockup-tag {
+    border-radius: 9999px;
+    padding: 0.25rem 0.625rem;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .landing-mockup-tag-violet {
+    border: 1px solid rgb(167 139 250 / 0.35);
+    background: rgb(245 243 255 / 0.12);
+    color: rgb(216 180 254 / 1);
+  }
+
+  .landing-mockup-tag-gold {
+    border: 1px solid rgb(245 184 45 / 0.45);
+    background: rgb(245 184 45 / 0.15);
+    color: rgb(255 234 199 / 1);
+  }
+
+  .landing-mockup-tag-green {
+    border: 1px solid rgb(76 168 109 / 0.4);
+    background: rgb(76 168 109 / 0.12);
+    color: rgb(167 243 208 / 1);
+  }
+
+  .landing-hero-stat {
+    border-radius: 0.75rem;
+    padding: 0.875rem 0.75rem;
+    text-align: center;
+    box-shadow: 0 8px 24px rgb(26 25 23 / 0.06);
+  }
+
+  @media (min-width: 640px) {
+    .landing-hero-stat {
+      padding-inline: 1rem;
+      text-align: left;
+    }
+  }
+
+  .landing-hero-stat-accent {
+    border: 1px solid rgb(245 184 45 / 0.35);
+    background: linear-gradient(145deg, rgb(255 248 234 / 1), rgb(255 234 199 / 0.55));
+    color: rgb(var(--ep-ink-rgb) / 1);
+  }
+
+  .landing-hero-stat-dark {
+    border: 1px solid rgb(28 26 22 / 0.08);
+    background: linear-gradient(145deg, #1c1a16, #2a2722);
+    color: #fff;
+  }
+
+  .landing-hero-stat-dark p:last-child {
+    color: rgb(255 255 255 / 0.55);
+  }
+
+  .landing-hero-stat-glow {
+    border: 1px solid rgb(245 184 45 / 0.25);
+    background: linear-gradient(145deg, rgb(245 184 45 / 0.95), rgb(224 167 36 / 1));
+    color: rgb(28 26 22 / 1);
+  }
+
+  .landing-hero-stat-panel {
+    border: 1px solid rgb(var(--ep-line-rgb) / 0.85);
+    background: rgb(var(--ep-surface-panel-rgb) / 1);
+    color: rgb(var(--ep-ink-rgb) / 1);
+  }
+
+  .landing-hero-stat-panel p:last-child {
+    color: rgb(var(--ep-muted-rgb) / 1);
+  }
+
+  .landing-dark-section {
+    background-color: #1c1a16;
+    color: #fff;
+  }
+
+  .landing-tier-section {
+    background-color: #141312;
+    color: #fff;
+  }
+
+  html.dark .landing-tier-section {
+    background-color: #141312;
+  }
+
+  .landing-benefits-visual {
+    position: relative;
+    min-height: 22rem;
+    padding: 1rem 1rem 2rem 0;
+  }
+
+  .landing-benefits-card-back {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 72%;
+    z-index: 1;
+  }
+
+  .landing-benefits-card-front {
+    position: absolute;
+    top: 2.5rem;
+    right: 0;
+    width: 68%;
+    z-index: 2;
+  }
+
+  .landing-benefits-stat {
+    position: absolute;
+    bottom: 0;
+    left: 1.5rem;
+    z-index: 3;
+  }
+
+  .landing-editions-orbit {
+    animation: landing-float 8s ease-in-out infinite;
+  }
+
+  .landing-orbit-pill {
+    white-space: nowrap;
+  }
+
+  .landing-cta-pattern {
+    background-color: #1c1a16;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgb(245 184 45 / 0.12) 0%, transparent 45%),
+      radial-gradient(circle at 80% 70%, rgb(245 184 45 / 0.08) 0%, transparent 40%),
+      linear-gradient(135deg, transparent 48%, rgb(255 255 255 / 0.03) 49%, transparent 51%),
+      linear-gradient(45deg, transparent 48%, rgb(255 255 255 / 0.02) 49%, transparent 51%);
+    background-size: 100% 100%, 100% 100%, 24px 24px, 24px 24px;
+  }
+
+  .landing-footer {
+    background-color: #1c1a16;
+  }
+}
+
+@keyframes landing-frame-shimmer {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
 }
 
 @keyframes landing-fade-in {
@@ -257,6 +529,10 @@ html.dark {
   .landing-float,
   .landing-orb-a,
   .landing-orb-b,
+  .landing-hero-showcase-orb-a,
+  .landing-hero-showcase-orb-b,
+  .landing-hero-mockup,
+  .landing-hero-mockup-frame,
   .animate-pulse-soft {
     animation: none !important;
     opacity: 1;

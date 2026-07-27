@@ -334,24 +334,6 @@ html.dark {
     line-height: 1.2;
   }
 
-  .landing-mockup-tag-violet {
-    border: 1px solid rgb(167 139 250 / 0.35);
-    background: rgb(245 243 255 / 0.12);
-    color: rgb(216 180 254 / 1);
-  }
-
-  .landing-mockup-tag-gold {
-    border: 1px solid rgb(245 184 45 / 0.45);
-    background: rgb(245 184 45 / 0.15);
-    color: rgb(255 234 199 / 1);
-  }
-
-  .landing-mockup-tag-green {
-    border: 1px solid rgb(76 168 109 / 0.4);
-    background: rgb(76 168 109 / 0.12);
-    color: rgb(167 243 208 / 1);
-  }
-
   .landing-hero-stat {
     border-radius: 0.75rem;
     padding: 0.875rem 0.75rem;

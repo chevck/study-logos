@@ -261,13 +261,25 @@ function HeroShowcase() {
 
               <div className="relative mt-4 flex flex-wrap gap-2">
                 {[
-                  { label: "Case study", tone: "violet" },
-                  { label: "Cross-refs", tone: "gold" },
-                  { label: "First mention", tone: "green" },
-                ].map(({ label, tone }) => (
+                  {
+                    label: "Case study",
+                    className:
+                      "border border-purple-400/40 bg-purple-500/15 text-purple-200",
+                  },
+                  {
+                    label: "Cross-refs",
+                    className:
+                      "border border-ep-accent/50 bg-ep-accent/15 text-[#FFE8B7]",
+                  },
+                  {
+                    label: "First mention",
+                    className:
+                      "border border-emerald-400/40 bg-emerald-500/15 text-emerald-200",
+                  },
+                ].map(({ label, className }) => (
                   <span
                     key={label}
-                    className={`landing-mockup-tag landing-mockup-tag-${tone}`}
+                    className={`landing-mockup-tag ${className}`}
                   >
                     {label}
                   </span>
@@ -307,7 +319,7 @@ function Hero() {
       <div className="relative mx-auto max-w-4xl px-4 text-center sm:px-6">
         <p className="landing-fade-in mb-5 inline-flex items-center gap-2 rounded-full border border-ep-accent/30 bg-ep-accent-soft/70 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-ep-ink/80">
           <AppIcon variant="gold" className="h-4 w-4" alt="" />
-          Original-language word study · Beta
+          Original-language word study
         </p>
 
         <h1 className="landing-fade-in landing-delay-1 text-4xl font-extrabold leading-[1.06] tracking-tight text-balance text-ep-ink sm:text-5xl lg:text-[3.35rem]">
